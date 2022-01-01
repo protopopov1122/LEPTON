@@ -46,6 +46,7 @@ INTERPRETER_STATE:
 .extern leptonrt_executable_area_append_call
 .extern leptonrt_executable_area_append_push
 .extern leptonrt_executable_area_patch_push
+.extern leptonrt_executable_area_append_prologue
 .extern leptonrt_executable_area_append_ret
 .extern leptonrt_executable_area_append_jmp
 
@@ -164,6 +165,8 @@ lepton_colon:
     xor rdx, rdx
     xor rcx, rcx
     call leptonrt_define_word
+# Add prologue
+    call leptonrt_executable_area_append_prologue
 # Switch to compilation mode
     mov rax, 1
     mov BYTE PTR INTERPRETER_STATE[rip], al
@@ -230,16 +233,6 @@ lepton_postpone_fail:
 lepton_postpone_fail_msg:
     .string16 "Fatal: failed to postpone word execution\n\000"
 
-lepton_io_print:
-    mov rsi, [rbx]
-    add rbx, 8
-    lea rdi, lepton_io_print_fmt[rip]
-    xor rax, rax
-    call Print
-    ret
-lepton_io_print_fmt:
-    .string16 "%lld\n"
-
 lepton_arith_add:
     mov rax, [rbx + 8]
     add rax, [rbx]
@@ -267,4 +260,15 @@ lepton_arith_div:
     idiv rax, [rbx]
     mov [rbx + 8], rax
     add rbx, 8
+    ret
+
+.extern leptonrt_print_int
+lepton_io_print:
+    push rbp
+    mov rbp, rsp
+    mov rax, [rbx]
+    add rbx, 8
+    mov rdi, rax
+    call leptonrt_print_int
+    leave
     ret

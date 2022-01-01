@@ -63,6 +63,11 @@ static BOOLEAN isspace(CHAR16 chr) {
   return chr == L' ' || chr == L'\n' || chr == L'\r' || chr == L'\t';
 }
 
+static void putchar(CHAR16 chr) {
+  CHAR16 str[] = {chr, L'\0'};
+  uefi_call_wrapper(EFI_SystemTable->ConOut->OutputString, 2, EFI_SystemTable->ConOut, str);
+}
+
 static CHAR16 getchar() {
   EFI_STATUS status;
   EFI_INPUT_KEY key;
@@ -73,8 +78,7 @@ static CHAR16 getchar() {
     return L'\0';
   }
 
-  CHAR16 echo[] = {key.UnicodeChar, L'\0'};
-  uefi_call_wrapper(EFI_SystemTable->ConOut->OutputString, 2, EFI_SystemTable->ConOut, echo);
+  putchar(key.UnicodeChar);
   return key.UnicodeChar;
 }
 
@@ -192,7 +196,17 @@ void leptonrt_executable_area_patch_push(UINT8 *ptr, UINT64 data) {
     }
 }
 
+void leptonrt_executable_area_append_prologue() {
+    // push rbp
+    *(ExecutableArea.current++) = 0x55;
+    // mov rbp, rsp
+    *(ExecutableArea.current++) = 0x48;
+    *(ExecutableArea.current++) = 0x89;
+    *(ExecutableArea.current++) = 0xe5;
+}
+
 void leptonrt_executable_area_append_ret() {
+    *(ExecutableArea.current++) = 0xc9;
     *(ExecutableArea.current++) = 0xc3;
 }
 
@@ -224,6 +238,10 @@ extern void lepton_arith_add();
 extern void lepton_arith_sub();
 extern void lepton_arith_mul();
 extern void lepton_arith_div();
+
+void leptonrt_print_int(INT64 value) {
+  Print(L"%d\n", value);
+}
 
 static void *fntoptr(void (*fn)()) {
     void **pptr = (void **) &fn;
@@ -299,7 +317,7 @@ EFI_STATUS EFIAPI efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTabl
   leptonrt_define_word(L"IMMEDIATE", fntoptr(lepton_immediate), 0, FALSE);
   leptonrt_define_word(L"POSTPONE", fntoptr(lepton_postpone), 0, TRUE);
 
-  leptonrt_define_word(L".", fntoptr(lepton_io_print), 0, FALSE);
+  leptonrt_define_word(L"PRINT", fntoptr(lepton_io_print), 0, FALSE);
 
   leptonrt_define_word(L"+", fntoptr(lepton_arith_add), 0, FALSE);
   leptonrt_define_word(L"-", fntoptr(lepton_arith_sub), 0, FALSE);
