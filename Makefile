@@ -10,17 +10,40 @@ LD=ld
 CFLAGS=-I$(GNUEFI_INC) -fpic -ffreestanding -fno-stack-protector -fno-stack-check -fshort-wchar -mno-red-zone -maccumulate-outgoing-args -ggdb
 LDFLAGS=-shared -Bsymbolic -L$(GNUEFI_LIB) -T$(GNUEFI_LIB)/elf_x86_64_efi.lds $(GNUEFI_LIB)/crt0-efi-x86_64.o
 
-$(BIN_DIR):
-	@mkdir -p $(BIN_DIR)
+$(SOURCE_DIR)/dictionary.h: $(SOURCE_DIR)/core.h
+$(SOURCE_DIR)/util.c: $(SOURCE_DIR)/util.h
+$(SOURCE_DIR)/console.c: $(SOURCE_DIR)/console.h $(SOURCE_DIR)/util.h $(SOURCE_DIR)/core.h
+$(SOURCE_DIR)/memory.c: $(SOURCE_DIR)/console.h $(SOURCE_DIR)/memory.h $(SOURCE_DIR)/core.h
+$(SOURCE_DIR)/dictionary.c: $(SOURCE_DIR)/dictionary.h $(SOURCE_DIR)/console.h
+$(SOURCE_DIR)/helpers.c: $(SOURCE_DIR)/helpers.h $(SOURCE_DIR)/dictionary.h $(SOURCE_DIR)/console.h
+$(SOURCE_DIR)/core.c: $(SOURCE_DIR)/core.h $(SOURCE_DIR)/console.h
+$(SOURCE_DIR)/main.c: $(SOURCE_DIR)/console.h $(SOURCE_DIR)/util.h $(SOURCE_DIR)/core.h $(SOURCE_DIR)/memory.h $(SOURCE_DIR)/dictionary.h
+$(SOURCE_DIR)/entry.s: $(SOURCE_DIR)/header.inc
+$(SOURCE_DIR)/io_words.s: $(SOURCE_DIR)/header.inc
+$(SOURCE_DIR)/arithmetic_words.s: $(SOURCE_DIR)/header.inc
+$(SOURCE_DIR)/core_words.s: $(SOURCE_DIR)/header.inc
 
-$(BIN_DIR)/main.c.o: $(SOURCE_DIR)/main.c $(BIN_DIR)
-	$(CC) $(CFLAGS) -c $(SOURCE_DIR)/main.c -o $(BIN_DIR)/main.c.o
+$(BIN_DIR)/%.c.o: $(SOURCE_DIR)/%.c
+	@mkdir -p $(shell dirname "$@")
+	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BIN_DIR)/main.s.o: $(SOURCE_DIR)/main.s $(BIN_DIR)
-	$(AS) $(SOURCE_DIR)/main.s -o $(BIN_DIR)/main.s.o
+$(BIN_DIR)/%.s.o: $(SOURCE_DIR)/%.s
+	@mkdir -p $(shell dirname "$@")
+	$(AS) $< -o $@
 
-$(BIN_DIR)/lepton.so: $(BIN_DIR)/main.c.o $(BIN_DIR)/main.s.o
-	$(LD) $(LDFLAGS) $(BIN_DIR)/main.c.o $(BIN_DIR)/main.s.o -o $(BIN_DIR)/lepton.so -lgnuefi -lefi
+$(BIN_DIR)/lepton.so: \
+	$(BIN_DIR)/main.c.o \
+	$(BIN_DIR)/console.c.o \
+	$(BIN_DIR)/util.c.o \
+	$(BIN_DIR)/memory.c.o \
+	$(BIN_DIR)/dictionary.c.o \
+	$(BIN_DIR)/helpers.c.o \
+	$(BIN_DIR)/core.c.o \
+	$(BIN_DIR)/io_words.s.o \
+	$(BIN_DIR)/arithmetic_words.s.o \
+	$(BIN_DIR)/core_words.s.o \
+	$(BIN_DIR)/entry.s.o
+	$(LD) $(LDFLAGS) $^ -o $@ -lgnuefi -lefi
 
 $(BIN_DIR)/lepton.efi: $(BIN_DIR)/lepton.so
 	objcopy \
@@ -43,13 +66,12 @@ $(BIN_DIR)/OVMF_CODE.fd:
 $(BIN_DIR)/OVMF_VARS.fd:
 	@cp $(OVMF_DIR)/OVMF_VARS.fd $(BIN_DIR)/OVMF_VARS.fd
 
-$(BIN_DIR)/build:
-	@mkdir -p $(BIN_DIR)/build
-
-$(BIN_DIR)/build/lepton.efi: $(BIN_DIR)/lepton.efi $(BIN_DIR)/build
+$(BIN_DIR)/build/lepton.efi: $(BIN_DIR)/lepton.efi
+	@mkdir -p $(shell dirname "$@")
 	@cp $(BIN_DIR)/lepton.efi $(BIN_DIR)/build/lepton.efi
 
-$(BIN_DIR)/build/startup.nsh: $(SOURCE_DIR)/startup.nsh $(BIN_DIR)/build
+$(BIN_DIR)/build/startup.nsh: $(SOURCE_DIR)/startup.nsh
+	@mkdir -p $(shell dirname "$@")
 	@cp $(SOURCE_DIR)/startup.nsh $(BIN_DIR)/build/startup.nsh
 
 run: $(BIN_DIR)/build/lepton.efi $(BIN_DIR)/build/startup.nsh $(BIN_DIR)/OVMF_VARS.fd $(BIN_DIR)/OVMF_CODE.fd
