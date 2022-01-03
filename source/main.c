@@ -37,6 +37,21 @@ DECLARE_WORD(arith_div);
 
 #undef DECLARE_WORD
 
+static EFI_HANDLE EFI_ImageHandle;
+
+static void lepton_word_abort() {
+  lepton_console_printf(L"Aborting LEPTON\n");
+  uefi_call_wrapper(ST->BootServices->Exit, 4, EFI_ImageHandle, EFI_ABORTED, 0, NULL);
+}
+
+static void lepton_word_exit() {
+  lepton_dictionary_free();
+  lepton_memory_free();
+  lepton_console_printf(L"Exiting LEPTON\n");
+  lepton_core_free();
+  uefi_call_wrapper(ST->BootServices->Exit, 4, EFI_ImageHandle, EFI_SUCCESS, 0, NULL);
+}
+
 static void initialize_core_dictionary() {
   lepton_console_printf(L"Initializing core dictionary\n");
 #define INIT_WORD(_literal, _identifier, _data, _immediate) \
@@ -70,6 +85,8 @@ static void initialize_core_dictionary() {
   INIT_WORD(L"*", arith_mul, 0, FALSE);
   INIT_WORD(L"/", arith_div, 0, FALSE);
 
+  INIT_WORD(L"EXIT", exit, 0, FALSE);
+  INIT_WORD(L"ABORT", abort, 0, FALSE);
   INIT_WORD(L"INTERPRET", interpret, 0, FALSE);
 #undef INIT_WORD
 }
@@ -77,6 +94,7 @@ static void initialize_core_dictionary() {
 extern int lepton_entry(void *, void *);
 
 EFI_STATUS EFIAPI efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
+  EFI_ImageHandle = ImageHandle;
   lepton_core_init(ImageHandle, SystemTable);
   lepton_console_printf(L"Starting LEPTON\n");
   lepton_memory_initialize();
@@ -88,9 +106,6 @@ EFI_STATUS EFIAPI efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTabl
     lepton_console_printf(L"Fatal: entry failed\n");
   }
 
-  lepton_dictionary_free();
-  lepton_memory_free();
-  lepton_console_printf(L"Exiting LEPTON\n");
-  lepton_core_free();
+  lepton_word_exit();
   return EFI_SUCCESS;
 }

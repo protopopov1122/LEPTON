@@ -31,6 +31,8 @@ dictionary_entry_immediate:
 
 .section .code
 
+.extern lepton_word_exit
+.extern lepton_word_abort
 .extern lepton_define_word
 .extern lepton_top_word
 .extern lepton_console_next_word
