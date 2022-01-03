@@ -161,3 +161,102 @@ lepton_postpone_fail:
     END_WORD
 lepton_postpone_fail_msg:
     .string16 "Fatal: failed to postpone word execution\n\000"
+
+DEFINE_WORD create
+    call lepton_console_next_word
+    cmp rax, 0
+    je create_failure
+    mov rdi, rax
+    lea rsi, create_impl[rip]
+    mov rdx, [rbx]
+    add rbx, 8
+    xor rcx, rcx
+    call lepton_define_word
+    END_WORD
+create_impl:
+    sub rbx, 8
+    mov [rbx], rdi
+    ret
+create_failure:
+    lea rdi, create_failure_msg[rip]
+    xor rax, rax
+    END_WORD
+create_failure_msg:
+    .ascii "Fatal: failed to create a word\n\000"
+
+DEFINE_WORD does
+    call lepton_executable_area_current
+    mov r12, rax
+    call lepton_top_word
+    mov [rax + dictionary_entry_code], r12
+    mov r12, rax
+    call lepton_executable_area_append_prologue
+    mov rdi, [r12 + dictionary_entry_data]
+    call lepton_executable_area_append_push
+    mov rdi, [rsp + 8]
+    call lepton_executable_area_append_jmp
+    END_WORD
+
+DEFINE_WORD tick
+    call lepton_console_next_word
+    cmp rax, 0
+    je tick_failure
+    mov rdi, rax
+    call lepton_helper_parse_input
+    cmp rax, 0
+    jne tick_failure
+    cmp rdx, 0
+    je tick_failure
+    mov rdi, rdx
+    call lepton_executable_area_append_push
+    END_WORD
+tick_failure:
+    lea rdi, tick_failure_msg[rip]
+    xor rax, rax
+    call lepton_console_printf
+    END_WORD
+tick_failure_msg:
+    .ascii "Fatal: failed to take an address of the word\n\000"
+
+DEFINE_WORD comma
+    mov rax, [rbx]
+    add rbx, 8
+    mov rdi, [rax + dictionary_entry_code]
+    mov rsi, [rax + dictionary_entry_data]
+    call lepton_executable_area_append_call
+    END_WORD
+
+DEFINE_WORD branch
+    mov rax, [rbx]
+    add rbx, 8
+    pop rbp
+    jmp rax
+
+DEFINE_WORD branch0
+    mov rax, [rbx]
+    mov rdx, [rbx + 8]
+    add rbx, 16
+    cmp rdx, 0
+    je branch0_jump
+    END_WORD
+branch0_jump:
+    pop rbp
+    jmp rax
+
+DEFINE_WORD here
+    call lepton_executable_area_current
+    sub rbx, 8
+    mov [rbx], rax
+    END_WORD
+
+DEFINE_WORD make_forward_reference
+    xor rdi, rdi
+    call lepton_executable_area_append_push
+    END_WORD
+
+DEFINE_WORD resolve_forward_reference
+    mov rsi, [rbx]
+    mov rdi, [rbx + 8]
+    add rbx, 8
+    call lepton_executable_area_patch_push
+    END_WORD

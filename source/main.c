@@ -18,6 +18,15 @@ DECLARE_WORD(right_bracket);
 DECLARE_WORD(literal);
 DECLARE_WORD(immediate);
 DECLARE_WORD(postpone);
+DECLARE_WORD(create);
+DECLARE_WORD(does);
+DECLARE_WORD(tick);
+DECLARE_WORD(comma);
+DECLARE_WORD(branch);
+DECLARE_WORD(branch0);
+DECLARE_WORD(here);
+DECLARE_WORD(make_forward_reference);
+DECLARE_WORD(resolve_forward_reference);
 
 DECLARE_WORD(io_print);
 
@@ -44,6 +53,15 @@ static void initialize_core_dictionary() {
   INIT_WORD(L"LITERAL", literal, 0, TRUE);
   INIT_WORD(L"IMMEDIATE", immediate, 0, FALSE);
   INIT_WORD(L"POSTPONE", postpone, 0, TRUE);
+  INIT_WORD(L"CREATE", create, 0, FALSE);
+  INIT_WORD(L"DOES>", does, 0, FALSE);
+  INIT_WORD(L"'", tick, 0, TRUE);
+  INIT_WORD(L",", comma, 0, FALSE);
+  INIT_WORD(L"BRANCH", branch, 0, FALSE);
+  INIT_WORD(L"BRANCH0", branch0, 0, FALSE);
+  INIT_WORD(L"HERE", here, 0, FALSE);
+  INIT_WORD(L"MAKE-FORWARD-REF", make_forward_reference, 0, FALSE);
+  INIT_WORD(L"RESOLVE-FORWARD-REF", resolve_forward_reference, 0, FALSE);
 
   INIT_WORD(L".", io_print, 0, FALSE);
 
