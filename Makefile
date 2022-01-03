@@ -18,16 +18,16 @@ $(SOURCE_DIR)/dictionary.c: $(SOURCE_DIR)/dictionary.h $(SOURCE_DIR)/console.h
 $(SOURCE_DIR)/helpers.c: $(SOURCE_DIR)/helpers.h $(SOURCE_DIR)/dictionary.h $(SOURCE_DIR)/console.h
 $(SOURCE_DIR)/core.c: $(SOURCE_DIR)/core.h $(SOURCE_DIR)/console.h
 $(SOURCE_DIR)/main.c: $(SOURCE_DIR)/console.h $(SOURCE_DIR)/util.h $(SOURCE_DIR)/core.h $(SOURCE_DIR)/memory.h $(SOURCE_DIR)/dictionary.h
-$(SOURCE_DIR)/entry.s: $(SOURCE_DIR)/header.inc
-$(SOURCE_DIR)/io_words.s: $(SOURCE_DIR)/header.inc
-$(SOURCE_DIR)/arithmetic_words.s: $(SOURCE_DIR)/header.inc
-$(SOURCE_DIR)/core_words.s: $(SOURCE_DIR)/header.inc
+$(SOURCE_DIR)/entry.S: $(SOURCE_DIR)/header.inc.S
+$(SOURCE_DIR)/io_words.S: $(SOURCE_DIR)/header.inc.S
+$(SOURCE_DIR)/arithmetic_words.S: $(SOURCE_DIR)/header.inc.S
+$(SOURCE_DIR)/core_words.S: $(SOURCE_DIR)/header.inc.S
 
 $(BIN_DIR)/%.c.o: $(SOURCE_DIR)/%.c
 	@mkdir -p $(shell dirname "$@")
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BIN_DIR)/%.s.o: $(SOURCE_DIR)/%.s
+$(BIN_DIR)/%.S.o: $(SOURCE_DIR)/%.S
 	@mkdir -p $(shell dirname "$@")
 	$(AS) $< -o $@
 
@@ -39,10 +39,10 @@ $(BIN_DIR)/lepton.so: \
 	$(BIN_DIR)/dictionary.c.o \
 	$(BIN_DIR)/helpers.c.o \
 	$(BIN_DIR)/core.c.o \
-	$(BIN_DIR)/io_words.s.o \
-	$(BIN_DIR)/arithmetic_words.s.o \
-	$(BIN_DIR)/core_words.s.o \
-	$(BIN_DIR)/entry.s.o
+	$(BIN_DIR)/io_words.S.o \
+	$(BIN_DIR)/arithmetic_words.S.o \
+	$(BIN_DIR)/core_words.S.o \
+	$(BIN_DIR)/entry.S.o
 	$(LD) $(LDFLAGS) $^ -o $@ -lgnuefi -lefi
 
 $(BIN_DIR)/lepton.efi: $(BIN_DIR)/lepton.so

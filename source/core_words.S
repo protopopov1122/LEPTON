@@ -1,4 +1,4 @@
-.include "source/header.inc"
+.include "source/header.inc.S"
 
 # --------------- DATA ---------------
 

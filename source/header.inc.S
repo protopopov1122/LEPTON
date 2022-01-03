@@ -1,6 +1,7 @@
 .intel_syntax noprefix
 
 # --------------- MACROS ---------------
+
 .macro DEFINE_WORD identifier
 .global lepton_word_\identifier
 lepton_word_\identifier\():
