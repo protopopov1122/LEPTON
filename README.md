@@ -1,6 +1,6 @@
 ## LEPTON
 
-This repo contains an on-going experiment in implementing Forth-like environment for bare-metal x86_64 using EFI APIs. Currently, it is
+This repo contains an on-going experiment in implementing Forth-like environment written as UEFI application for x86_64 architecture. Currently, it is
 capable of producing a runnable EFI executable file that provides interactive environment with a few essential Forth words. Debugging
 is possible via QEMU debugging interface and a few GDB commands:
 ```
