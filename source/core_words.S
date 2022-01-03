@@ -124,8 +124,7 @@ DEFINE_WORD right_bracket
     END_WORD
 
 DEFINE_WORD literal
-    mov rdi, [rbx]
-    add rbx, 8
+    POPDATA rdi
     call lepton_executable_area_append_push
     END_WORD
 
@@ -168,15 +167,13 @@ DEFINE_WORD create
     je create_failure
     mov rdi, rax
     lea rsi, create_impl[rip]
-    mov rdx, [rbx]
-    add rbx, 8
+    POPDATA rdx
     xor rcx, rcx
     call lepton_define_word
     END_WORD
 create_impl:
-    sub rbx, 8
-    mov [rbx], rdi
-    ret
+    PUSHDATA rdi
+    END_WORD
 create_failure:
     lea rdi, create_failure_msg[rip]
     xor rax, rax
@@ -219,23 +216,20 @@ tick_failure_msg:
     .ascii "Fatal: failed to take an address of the word\n\000"
 
 DEFINE_WORD comma
-    mov rax, [rbx]
-    add rbx, 8
+    POPDATA rax
     mov rdi, [rax + dictionary_entry_code]
     mov rsi, [rax + dictionary_entry_data]
     call lepton_executable_area_append_call
     END_WORD
 
 DEFINE_WORD branch
-    mov rax, [rbx]
-    add rbx, 8
+    POPDATA rax
     pop rbp
     jmp rax
 
 DEFINE_WORD branch0
-    mov rax, [rbx]
-    mov rdx, [rbx + 8]
-    add rbx, 16
+    POPDATA rax
+    POPDATA rdx
     cmp rdx, 0
     je branch0_jump
     END_WORD
@@ -245,8 +239,7 @@ branch0_jump:
 
 DEFINE_WORD here
     call lepton_executable_area_current
-    sub rbx, 8
-    mov [rbx], rax
+    PUSHDATA rax
     END_WORD
 
 DEFINE_WORD make_forward_reference
@@ -255,8 +248,7 @@ DEFINE_WORD make_forward_reference
     END_WORD
 
 DEFINE_WORD resolve_forward_reference
-    mov rsi, [rbx]
-    mov rdi, [rbx + 8]
-    add rbx, 8
+    POPDATA rsi
+    POPDATA rdi
     call lepton_executable_area_patch_push
     END_WORD

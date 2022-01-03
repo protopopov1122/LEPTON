@@ -14,6 +14,16 @@ lepton_word_\identifier\():
     ret
 .endm
 
+.macro PUSHDATA value
+    sub rbx, 8
+    mov [rbx], \value
+.endm
+
+.macro POPDATA dest
+    mov \dest, [rbx]
+    add rbx, 8
+.endm
+
 # --------------- STRUCTURE DEFINITIONS ---------------
 
 .struct 0

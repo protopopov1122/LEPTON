@@ -5,8 +5,7 @@
 .section .text
 
 DEFINE_WORD io_print
-    mov rsi, [rbx]
-    add rbx, 8
+    POPDATA rsi
     lea rdi, lepton_io_print_msg[rip]
     xor rax, rax
     call lepton_console_printf
