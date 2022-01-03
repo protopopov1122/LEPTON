@@ -63,30 +63,3 @@ UINTN lepton_console_readline(CHAR16 *content, UINTN max_length, const CHAR16 *p
   Print(L"\r\n");
   return index;
 }
-
-const CHAR16 *lepton_console_next_word() {
-  static CHAR16 LINEBUF[LEPTON_CONSOLE_LINE_MAXLEN + 1] = {L'\0'};
-  static UINTN LINEPOS = 0;
-  if (LINEBUF[LINEPOS] == L'\0') {
-    lepton_console_readline(LINEBUF, LEPTON_CONSOLE_LINE_MAXLEN, L"> ");
-    LINEPOS = 0;
-  }
-
-  static CHAR16 WORD[LEPTON_DICTIONARY_WORD_MAXLEN + 1] = {L'\0'};
-  CHAR16 chr;
-
-  do {
-    chr = LINEBUF[LINEPOS++];
-  } while (lepton_util_isspace(chr));
-  if (chr == L'\0') {
-      return NULL;
-  }
-
-  UINTN i = 0;
-  for (; !lepton_util_isspace(chr) && chr != L'\0' && i < LEPTON_DICTIONARY_WORD_MAXLEN; i++) {
-      WORD[i] = chr;
-      chr = LINEBUF[LINEPOS++];
-  }
-  WORD[i] = L'\0';
-  return WORD;
-}

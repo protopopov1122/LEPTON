@@ -17,6 +17,7 @@ $(SOURCE_DIR)/memory.c: $(SOURCE_DIR)/console.h $(SOURCE_DIR)/memory.h $(SOURCE_
 $(SOURCE_DIR)/dictionary.c: $(SOURCE_DIR)/dictionary.h $(SOURCE_DIR)/console.h
 $(SOURCE_DIR)/helpers.c: $(SOURCE_DIR)/helpers.h $(SOURCE_DIR)/dictionary.h $(SOURCE_DIR)/console.h
 $(SOURCE_DIR)/core.c: $(SOURCE_DIR)/core.h $(SOURCE_DIR)/console.h
+$(SOURCE_DIR)/input.c: $(SOURCE_DIR)/input.h $(SOURCE_DIR)/console.h $(SOURCE_DIR)/core.h $(SOURCE_DIR)/util.h
 $(SOURCE_DIR)/main.c: $(SOURCE_DIR)/console.h $(SOURCE_DIR)/util.h $(SOURCE_DIR)/core.h $(SOURCE_DIR)/memory.h $(SOURCE_DIR)/dictionary.h
 $(SOURCE_DIR)/entry.S: $(SOURCE_DIR)/header.inc.S
 $(SOURCE_DIR)/io_words.S: $(SOURCE_DIR)/header.inc.S
@@ -39,6 +40,7 @@ $(BIN_DIR)/lepton.so: \
 	$(BIN_DIR)/dictionary.c.o \
 	$(BIN_DIR)/helpers.c.o \
 	$(BIN_DIR)/core.c.o \
+	$(BIN_DIR)/input.c.o \
 	$(BIN_DIR)/io_words.S.o \
 	$(BIN_DIR)/arithmetic_words.S.o \
 	$(BIN_DIR)/core_words.S.o \

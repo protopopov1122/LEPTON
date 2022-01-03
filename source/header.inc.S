@@ -45,7 +45,7 @@ dictionary_entry_immediate:
 .extern lepton_word_abort
 .extern lepton_define_word
 .extern lepton_top_word
-.extern lepton_console_next_word
+.extern lepton_input_next_word
 .extern lepton_helper_parse_input
 .extern lepton_console_printf
 .extern lepton_executable_area_current

@@ -15,7 +15,7 @@ DEFINE_WORD interpret
 lepton_interpret:
 # Interpreter loop begins
 # Read next word
-    call lepton_console_next_word
+    call lepton_input_next_word
     cmp rax, 0
     je lepton_interp_exit
     mov rdi, rax
@@ -82,7 +82,7 @@ lepton_interp_compile_word_fail_msg:
 
 DEFINE_WORD colon
 # Read word name
-    call lepton_console_next_word
+    call lepton_input_next_word
     cmp rax, 0
     je lepton_colon_fail
     mov r12, rax
@@ -135,7 +135,7 @@ DEFINE_WORD immediate
     END_WORD
 
 DEFINE_WORD postpone
-    call lepton_console_next_word
+    call lepton_input_next_word
     cmp rax, 0
     je lepton_postpone_fail
     mov rdi, rax
@@ -162,7 +162,7 @@ lepton_postpone_fail_msg:
     .string16 "Fatal: failed to postpone word execution\n\000"
 
 DEFINE_WORD create
-    call lepton_console_next_word
+    call lepton_input_next_word
     cmp rax, 0
     je create_failure
     mov rdi, rax
@@ -195,7 +195,7 @@ DEFINE_WORD does
     END_WORD
 
 DEFINE_WORD tick
-    call lepton_console_next_word
+    call lepton_input_next_word
     cmp rax, 0
     je tick_failure
     mov rdi, rax
