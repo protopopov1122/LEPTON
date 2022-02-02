@@ -1,4 +1,4 @@
-.include "source/header.inc.S"
+.include "source/core/header.inc.S"
 
 # --------------- DATA ---------------
 
@@ -33,8 +33,7 @@ lepton_interpret_word:
     cmp rax, 0
     je lepton_interpret_execute_word
 # Interpret integer: push it
-    sub rbx, 8
-    mov [rbx], rdx
+    PUSHDATA rdx
     jmp lepton_interpret
 # Interpret word: execute it
 lepton_interpret_execute_word:
@@ -251,4 +250,21 @@ DEFINE_WORD resolve_forward_reference
     POPDATA rsi
     POPDATA rdi
     call lepton_executable_area_patch_push
+    END_WORD
+
+DEFINE_WORD bump
+    POPDATA rdi
+    call lepton_bump_area_alloc
+    PUSHDATA rax
+    END_WORD
+
+DEFINE_WORD bump_mark
+    call lepton_bump_area_mark
+    PUSHDATA rax
+    END_WORD
+
+DEFINE_WORD bump_set
+    POPDATA rdi
+    call lepton_bump_area_set
+    PUSHDATA rax
     END_WORD

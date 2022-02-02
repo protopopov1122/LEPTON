@@ -27,6 +27,9 @@ DECLARE_WORD(branch0);
 DECLARE_WORD(here);
 DECLARE_WORD(make_forward_reference);
 DECLARE_WORD(resolve_forward_reference);
+DECLARE_WORD(bump);
+DECLARE_WORD(bump_mark);
+DECLARE_WORD(bump_set);
 
 DECLARE_WORD(io_print);
 
@@ -77,6 +80,9 @@ static void initialize_core_dictionary() {
   INIT_WORD(L"HERE", here, 0, FALSE);
   INIT_WORD(L"MAKE-FORWARD-REF", make_forward_reference, 0, FALSE);
   INIT_WORD(L"RESOLVE-FORWARD-REF", resolve_forward_reference, 0, FALSE);
+  INIT_WORD(L"BUMP", bump, 0, FALSE);
+  INIT_WORD(L"BUMP-MARK", bump_mark, 0, FALSE);
+  INIT_WORD(L"BUMP-SET", bump_set, 0, FALSE);
 
   INIT_WORD(L".", io_print, 0, FALSE);
 

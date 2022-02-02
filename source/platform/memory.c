@@ -36,9 +36,32 @@ EFI_STATUS lepton_memory_initialize() {
     return status;
   }
   lepton_console_printf(L"Allocated executable area of %d pages at 0x%llx\n", LEPTON_EXECUTABLE_AREA_PAGES, LeptonMemory.executable_area);
+
+  status = uefi_call_wrapper(ST->BootServices->AllocatePages, 4, AllocateAnyPages, EfiRuntimeServicesCode, LEPTON_BUMP_AREA_PAGES, &LeptonMemory.bump_area);
+  if (EFI_ERROR(status)) {
+    lepton_console_printf(L"Fatal: Failed to allocate bump area: %r\n", status);
+    return status;
+  }
+  lepton_console_printf(L"Allocated bump area of %d pages at 0x%llx\n", LEPTON_BUMP_AREA_PAGES, LeptonMemory.bump_area);
   lepton_console_printf(L"Done initial memory allocation\n");
+
+  LeptonMemory.bump.current = (void *) LeptonMemory.bump_area;
 }
 
 EFI_STATUS lepton_memory_free() {
   // TODO Free allocated memory pages
+}
+
+void *lepton_bump_area_mark() {
+  return LeptonMemory.bump.current;
+}
+
+void *lepton_bump_area_alloc(UINT64 sz) {
+  void *ptr = LeptonMemory.bump.current;
+  LeptonMemory.bump.current += sz;
+  return ptr;
+}
+
+void lepton_bump_area_set(void *ptr) {
+  LeptonMemory.bump.current = ptr;
 }

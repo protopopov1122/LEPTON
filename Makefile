@@ -4,25 +4,28 @@ OVMF_DIR=/usr/share/ovmf/x64
 SOURCE_DIR=source
 BIN_DIR=bin
 
+PLATFORM_SRC=$(SOURCE_DIR)/platform
+
 CC=gcc
 AS=as
 LD=ld
 CFLAGS=-I$(GNUEFI_INC) -fpic -ffreestanding -fno-stack-protector -fno-stack-check -fshort-wchar -mno-red-zone -maccumulate-outgoing-args -ggdb
 LDFLAGS=-shared -Bsymbolic -L$(GNUEFI_LIB) -T$(GNUEFI_LIB)/elf_x86_64_efi.lds $(GNUEFI_LIB)/crt0-efi-x86_64.o
 
-$(SOURCE_DIR)/dictionary.h: $(SOURCE_DIR)/core.h
-$(SOURCE_DIR)/util.c: $(SOURCE_DIR)/util.h
-$(SOURCE_DIR)/console.c: $(SOURCE_DIR)/console.h $(SOURCE_DIR)/util.h $(SOURCE_DIR)/core.h
-$(SOURCE_DIR)/memory.c: $(SOURCE_DIR)/console.h $(SOURCE_DIR)/memory.h $(SOURCE_DIR)/core.h
-$(SOURCE_DIR)/dictionary.c: $(SOURCE_DIR)/dictionary.h $(SOURCE_DIR)/console.h
-$(SOURCE_DIR)/helpers.c: $(SOURCE_DIR)/helpers.h $(SOURCE_DIR)/dictionary.h $(SOURCE_DIR)/console.h
-$(SOURCE_DIR)/core.c: $(SOURCE_DIR)/core.h $(SOURCE_DIR)/console.h
-$(SOURCE_DIR)/input.c: $(SOURCE_DIR)/input.h $(SOURCE_DIR)/console.h $(SOURCE_DIR)/core.h $(SOURCE_DIR)/util.h
-$(SOURCE_DIR)/main.c: $(SOURCE_DIR)/console.h $(SOURCE_DIR)/util.h $(SOURCE_DIR)/core.h $(SOURCE_DIR)/memory.h $(SOURCE_DIR)/dictionary.h
-$(SOURCE_DIR)/entry.S: $(SOURCE_DIR)/header.inc.S
-$(SOURCE_DIR)/io_words.S: $(SOURCE_DIR)/header.inc.S
-$(SOURCE_DIR)/arithmetic_words.S: $(SOURCE_DIR)/header.inc.S
-$(SOURCE_DIR)/core_words.S: $(SOURCE_DIR)/header.inc.S
+$(PLATFORM_SRC)/platform/dictionary.h: $(PLATFORM_SRC)/platform/core.h
+$(PLATFORM_SRC)/platform/util.c: $(PLATFORM_SRC)/platform/util.h
+$(PLATFORM_SRC)/platform/console.c: $(PLATFORM_SRC)/platform/console.h $(PLATFORM_SRC)/platform/util.h $(PLATFORM_SRC)/platform/core.h
+$(PLATFORM_SRC)/platform/memory.c: $(PLATFORM_SRC)/platform/console.h $(PLATFORM_SRC)/platform/memory.h $(PLATFORM_SRC)/platform/core.h
+$(PLATFORM_SRC)/platform/dictionary.c: $(PLATFORM_SRC)/platform/dictionary.h $(PLATFORM_SRC)/platform/console.h
+$(PLATFORM_SRC)/platform/helpers.c: $(PLATFORM_SRC)/platform/helpers.h $(PLATFORM_SRC)/platform/dictionary.h $(PLATFORM_SRC)/platform/console.h
+$(PLATFORM_SRC)/platform/core.c: $(PLATFORM_SRC)/platform/core.h $(PLATFORM_SRC)/platform/console.h
+$(PLATFORM_SRC)/platform/input.c: $(PLATFORM_SRC)/platform/input.h $(PLATFORM_SRC)/platform/console.h $(PLATFORM_SRC)/platform/core.h $(PLATFORM_SRC)/platform/util.h
+$(PLATFORM_SRC)/platform/main.c: $(PLATFORM_SRC)/platform/console.h $(PLATFORM_SRC)/platform/util.h $(PLATFORM_SRC)/platform/core.h $(PLATFORM_SRC)/platform/memory.h $(PLATFORM_SRC)/platform/dictionary.h
+
+$(SOURCE_DIR)/core/entry.S: $(SOURCE_DIR)/core/header.inc.S
+$(SOURCE_DIR)/core/io_words.S: $(SOURCE_DIR)/core/header.inc.S
+$(SOURCE_DIR)/core/arithmetic_words.S: $(SOURCE_DIR)/core/header.inc.S
+$(SOURCE_DIR)/core/core_words.S: $(SOURCE_DIR)/core/header.inc.S
 
 $(BIN_DIR)/%.c.o: $(SOURCE_DIR)/%.c
 	@mkdir -p $(shell dirname "$@")
@@ -33,18 +36,18 @@ $(BIN_DIR)/%.S.o: $(SOURCE_DIR)/%.S
 	$(AS) $< -o $@
 
 $(BIN_DIR)/lepton.so: \
-	$(BIN_DIR)/main.c.o \
-	$(BIN_DIR)/console.c.o \
-	$(BIN_DIR)/util.c.o \
-	$(BIN_DIR)/memory.c.o \
-	$(BIN_DIR)/dictionary.c.o \
-	$(BIN_DIR)/helpers.c.o \
-	$(BIN_DIR)/core.c.o \
-	$(BIN_DIR)/input.c.o \
-	$(BIN_DIR)/io_words.S.o \
-	$(BIN_DIR)/arithmetic_words.S.o \
-	$(BIN_DIR)/core_words.S.o \
-	$(BIN_DIR)/entry.S.o
+	$(BIN_DIR)/platform/main.c.o \
+	$(BIN_DIR)/platform/console.c.o \
+	$(BIN_DIR)/platform/util.c.o \
+	$(BIN_DIR)/platform/memory.c.o \
+	$(BIN_DIR)/platform/dictionary.c.o \
+	$(BIN_DIR)/platform/helpers.c.o \
+	$(BIN_DIR)/platform/core.c.o \
+	$(BIN_DIR)/platform/input.c.o \
+	$(BIN_DIR)/core/io_words.S.o \
+	$(BIN_DIR)/core/arithmetic_words.S.o \
+	$(BIN_DIR)/core/core_words.S.o \
+	$(BIN_DIR)/core/entry.S.o
 	$(LD) $(LDFLAGS) $^ -o $@ -lgnuefi -lefi
 
 $(BIN_DIR)/lepton.efi: $(BIN_DIR)/lepton.so

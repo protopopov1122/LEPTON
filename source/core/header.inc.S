@@ -24,6 +24,15 @@ lepton_word_\identifier\():
     add rbx, 8
 .endm
 
+.macro PEEKDATA dest, offset=0
+    mov \dest, [rbx + \offset * 8]
+.endm
+
+.macro REPLACEDATA value, offset=0
+    mov [rbx + \offset * 8], \value
+    add rbx, \offset * 8
+.endm
+
 # --------------- STRUCTURE DEFINITIONS ---------------
 
 .struct 0
@@ -55,3 +64,6 @@ dictionary_entry_immediate:
 .extern lepton_executable_area_append_prologue
 .extern lepton_executable_area_append_ret
 .extern lepton_executable_area_append_jmp
+.extern lepton_bump_area_mark
+.extern lepton_bump_area_alloc
+.extern lepton_bump_area_set
